@@ -24,7 +24,7 @@ body {
 
 /* Header */
 header {
-    background: linear-gradient(135deg, #ff1a1a 0%, #cc0000 100%);
+    background: linear-gradient(135deg, #ccbf0b 0%, #4e4b0b 100%);
     color: white;
     padding: 30px;
     text-align: center;
@@ -212,7 +212,7 @@ footer {
 }
 
 footer a {
-    color: #ff1a1a;
+    color: yellowgreen;
     text-decoration: none;
     font-weight: bold;
 }
