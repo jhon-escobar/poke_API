@@ -3,52 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pokedex - Consumiendo la PokeAPI</title>
+    <title>Pokedex - Tabla de Pokémon</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>Pokedex</h1>
-        <div class="search-container">
+        <h1>🏆 Pokedex PAPUS</h1>
+        <div class="controls">
+          <button id="load-pokemon">Cargar Pokémon</button>
+          <button id="load-more">Cargar Más</button>
           <input
-            type="text"
-            id="pokemon-search"
-            placeholder="Buscar Pokémon por nombre o ID"
+            type="number"
+            id="limit"
+            min="1"
+            max="100"
+            value="20"
+            placeholder="Cantidad"
           />
-          <button id="search-btn">Buscar</button>
-          <button id="random-btn">Pokémon Aleatorio</button>
         </div>
       </header>
 
       <main>
-        <div class="pokemon-card" id="pokemon-card">
-          <div class="pokemon-image">
-            <img id="pokemon-img" src="" alt="Pokémon" />
-          </div>
-          <div class="pokemon-info">
-            <h2 id="pokemon-name">Nombre del Pokémon</h2>
-            <p id="pokemon-id">ID: #000</p>
-            <div class="types" id="pokemon-types">
-              <!-- Los tipos se insertarán aquí dinámicamente -->
-            </div>
-            <div class="stats">
-              <h3>Estadísticas</h3>
-              <div id="pokemon-stats">
-                <!-- Las estadísticas se insertarán aquí dinámicamente -->
-              </div>
-            </div>
-            <div class="abilities">
-              <h3>Habilidades</h3>
-              <div id="pokemon-abilities">
-                <!-- Las habilidades se insertarán aquí dinámicamente -->
-              </div>
-            </div>
-          </div>
+        <div class="loading" id="loading" style="display: none">
+          <p>Cargando Pokémon...</p>
+        </div>
+
+        <div class="table-container">
+          <table id="pokemon-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Tipo(s)</th>
+                <th>Altura</th>
+                <th>Peso</th>
+                <th>HP</th>
+                <th>Ataque</th>
+                <th>Defensa</th>
+              </tr>
+            </thead>
+            <tbody id="pokemon-tbody">
+              <!-- Los datos de Pokémon se insertarán aquí dinámicamente -->
+            </tbody>
+          </table>
         </div>
 
         <div class="error-message" id="error-message" style="display: none">
-          <p>¡Pokémon no encontrado! Intenta con otro nombre o ID.</p>
+          <p>¡Error al cargar los datos de Pokémon! Intenta nuevamente.</p>
         </div>
       </main>
 

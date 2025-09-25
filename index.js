@@ -1,19 +1,17 @@
+// Variables globales
+let currentOffset = 0;
+let currentLimit = 20;
+
 // Elementos del DOM
-const pokemonSearch = document.getElementById('pokemon-search');
-const searchBtn = document.getElementById('search-btn');
-const randomBtn = document.getElementById('random-btn');
-const pokemonCard = document.getElementById('pokemon-card');
-const errorMessage = document.getElementById('error-message');
+const pokemonTable = document.getElementById('pokemon-table');
+const pokemonTbody = document.getElementById('pokemon-tbody');
+const loadPokemonBtn = document.getElementById('load-pokemon');
+const loadMoreBtn = document.getElementById('load-more');
+const limitInput = document.getElementById('limit');
+const loadingElement = document.getElementById('loading');
+const errorElement = document.getElementById('error-message');
 
-// Elementos para mostrar la información del Pokémon
-const pokemonImg = document.getElementById('pokemon-img');
-const pokemonName = document.getElementById('pokemon-name');
-const pokemonId = document.getElementById('pokemon-id');
-const pokemonTypes = document.getElementById('pokemon-types');
-const pokemonStats = document.getElementById('pokemon-stats');
-const pokemonAbilities = document.getElementById('pokemon-abilities');
-
-// Colores para los tipos de Pokémon
+// Colores para los tipos de Pokémon (coincide con CSS)
 const typeColors = {
     normal: '#A8A878',
     fire: '#F08030',
@@ -35,124 +33,135 @@ const typeColors = {
     fairy: '#EE99AC'
 };
 
-// Función para obtener un Pokémon por nombre o ID
-async function getPokemon(query) {
+// Función principal para cargar Pokémon
+async function loadPokemon(loadMore = false) {
     try {
-        // Limpiar mensajes de error
+        // Mostrar loading y ocultar error
+        showLoading();
         hideError();
         
-        // Hacer la petición a la API
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${query.toLowerCase()}`);
+        if (!loadMore) {
+            currentOffset = 0;
+            pokemonTbody.innerHTML = '';
+        }
+        
+        currentLimit = parseInt(limitInput.value) || 20;
+        
+        // Hacer petición a la PokeAPI para obtener lista de Pokémon
+        const response = await fetch(
+            `https://pokeapi.co/api/v2/pokemon?limit=${currentLimit}&offset=${currentOffset}`
+        );
         
         if (!response.ok) {
-            throw new Error('Pokémon no encontrado');
+            throw new Error(`Error HTTP: ${response.status}`);
         }
         
         const data = await response.json();
-        displayPokemon(data);
+        
+        // Obtener datos detallados de cada Pokémon
+        const pokemonDetails = await Promise.all(
+            data.results.map(async (pokemon) => {
+                const detailResponse = await fetch(pokemon.url);
+                if (!detailResponse.ok) {
+                    throw new Error(`Error al obtener detalles de ${pokemon.name}`);
+                }
+                return await detailResponse.json();
+            })
+        );
+        
+        // Mostrar Pokémon en la tabla
+        displayPokemon(pokemonDetails);
+        
+        // Actualizar offset para la próxima carga
+        currentOffset += currentLimit;
+        
     } catch (error) {
-        showError();
-        console.error('Error al obtener el Pokémon:', error);
+        console.error('Error al cargar Pokémon:', error);
+        showError('Error al cargar los datos: ' + error.message);
+    } finally {
+        hideLoading();
     }
 }
 
-// Función para obtener un Pokémon aleatorio
-async function getRandomPokemon() {
-    // Generar un ID aleatorio entre 1 y 898 (número total de Pokémon en la API)
-    const randomId = Math.floor(Math.random() * 898) + 1;
-    await getPokemon(randomId);
-}
-
-// Función para mostrar la información del Pokémon
-function displayPokemon(pokemon) {
-    // Mostrar la tarjeta del Pokémon
-    pokemonCard.style.display = 'flex';
-    
-    // Imagen del Pokémon
-    pokemonImg.src = pokemon.sprites.other['official-artwork'].front_default || 
-                     pokemon.sprites.front_default;
-    pokemonImg.alt = pokemon.name;
-    
-    // Nombre e ID
-    pokemonName.textContent = pokemon.name;
-    pokemonId.textContent = `ID: #${pokemon.id.toString().padStart(3, '0')}`;
-    
-    // Tipos
-    pokemonTypes.innerHTML = '';
-    pokemon.types.forEach(typeInfo => {
-        const type = typeInfo.type.name;
-        const typeElement = document.createElement('span');
-        typeElement.classList.add('type');
-        typeElement.textContent = type;
-        typeElement.style.backgroundColor = typeColors[type] || '#777';
-        pokemonTypes.appendChild(typeElement);
-    });
-    
-    // Estadísticas
-    pokemonStats.innerHTML = '';
-    pokemon.stats.forEach(statInfo => {
-        const statElement = document.createElement('div');
-        statElement.classList.add('stat');
+// Función para mostrar Pokémon en la tabla
+function displayPokemon(pokemonList) {
+    pokemonList.forEach(pokemon => {
+        const row = document.createElement('tr');
         
-        const statName = document.createElement('span');
-        statName.classList.add('stat-name');
-        statName.textContent = statInfo.stat.name.replace('-', ' ');
+        // Obtener estadísticas principales
+        const hpStat = pokemon.stats.find(stat => stat.stat.name === 'hp');
+        const attackStat = pokemon.stats.find(stat => stat.stat.name === 'attack');
+        const defenseStat = pokemon.stats.find(stat => stat.stat.name === 'defense');
         
-        const statValue = document.createElement('span');
-        statValue.classList.add('stat-value');
-        statValue.textContent = statInfo.base_stat;
+        row.innerHTML = `
+            <td>#${pokemon.id.toString().padStart(3, '0')}</td>
+            <td>
+                <div class="pokemon-image">
+                    <img src="${pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}" 
+                         alt="${pokemon.name}" 
+                         title="${pokemon.name}">
+                </div>
+            </td>
+            <td>${capitalizeFirstLetter(pokemon.name)}</td>
+            <td>
+                <div class="types">
+                    ${pokemon.types.map(typeInfo => `
+                        <span class="type type-${typeInfo.type.name}" 
+                              style="background-color: ${typeColors[typeInfo.type.name] || '#777'}">
+                            ${typeInfo.type.name}
+                        </span>
+                    `).join('')}
+                </div>
+            </td>
+            <td>${(pokemon.height / 10).toFixed(1)} m</td>
+            <td>${(pokemon.weight / 10).toFixed(1)} kg</td>
+            <td>${hpStat ? hpStat.base_stat : 'N/A'}</td>
+            <td>${attackStat ? attackStat.base_stat : 'N/A'}</td>
+            <td>${defenseStat ? defenseStat.base_stat : 'N/A'}</td>
+        `;
         
-        statElement.appendChild(statName);
-        statElement.appendChild(statValue);
-        pokemonStats.appendChild(statElement);
-    });
-    
-    // Habilidades
-    pokemonAbilities.innerHTML = '';
-    pokemon.abilities.forEach(abilityInfo => {
-        const abilityElement = document.createElement('div');
-        abilityElement.classList.add('ability');
-        
-        const abilityName = document.createElement('span');
-        abilityName.classList.add('ability-name');
-        abilityName.textContent = abilityInfo.ability.name.replace('-', ' ');
-        
-        abilityElement.appendChild(abilityName);
-        pokemonAbilities.appendChild(abilityElement);
+        pokemonTbody.appendChild(row);
     });
 }
 
-// Función para mostrar mensaje de error
-function showError() {
-    pokemonCard.style.display = 'none';
-    errorMessage.style.display = 'block';
+// Función para capitalizar la primera letra
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Función para ocultar mensaje de error
+// Funciones para manejar estados de la UI
+function showLoading() {
+    loadingElement.style.display = 'block';
+}
+
+function hideLoading() {
+    loadingElement.style.display = 'none';
+}
+
+function showError(message) {
+    errorElement.innerHTML = `<p>${message}</p>`;
+    errorElement.style.display = 'block';
+}
+
 function hideError() {
-    errorMessage.style.display = 'none';
+    errorElement.style.display = 'none';
 }
 
 // Event Listeners
-searchBtn.addEventListener('click', () => {
-    const query = pokemonSearch.value.trim();
-    if (query) {
-        getPokemon(query);
-    }
+loadPokemonBtn.addEventListener('click', () => loadPokemon(false));
+loadMoreBtn.addEventListener('click', () => loadPokemon(true));
+
+limitInput.addEventListener('change', () => {
+    currentLimit = parseInt(limitInput.value) || 20;
 });
 
-randomBtn.addEventListener('click', getRandomPokemon);
-
-pokemonSearch.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const query = pokemonSearch.value.trim();
-        if (query) {
-            getPokemon(query);
-        }
-    }
+// Cargar Pokémon al iniciar la página
+document.addEventListener('DOMContentLoaded', () => {
+    loadPokemon(false);
 });
 
-// Cargar un Pokémon al iniciar (Pikachu por defecto)
-window.addEventListener('load', () => {
-    getPokemon('pikachu');
+// Manejo de errores global
+window.addEventListener('error', (event) => {
+    console.error('Error global:', event.error);
+    showError('Ha ocurrido un error inesperado. Por favor, recarga la página.');
 });
