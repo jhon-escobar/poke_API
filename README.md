@@ -1,42 +1,55 @@
-# poke_API
+# poke_API PAPUS
 
-# Pokedex - Consumiendo la PokeAPI
+## 📚 Documentación de la PokeAPI
 
-Esta es una aplicación web que consume la PokeAPI para mostrar información sobre Pokémon.
+### Endpoints Principales
 
-## Características
+Lista de Pokémon: GET `https://pokeapi.co/api/v2/pokemon?limit={limit}&offset={offset}`
 
-- Buscar Pokémon por nombre o ID
-- Obtener un Pokémon aleatorio
-- Mostrar información detallada del Pokémon:
-  - Imagen oficial
-  - Nombre e ID
-  - Tipos
-  - Estadísticas base
-  - Habilidades
+Pokémon específico: GET `https://pokeapi.co/api/v2/pokemon/{id-or-name}`
+Tipos de Pokémon: GET `https://pokeapi.co/api/v2/type/{id-or-name}`
 
-## Cómo usar
+## Características de la API
 
-1. Clona o descarga los archivos del proyecto
-2. Abre el archivo `index.html` en tu navegador
-3. Usa la barra de búsqueda para encontrar un Pokémon por nombre o ID
-4. Haz clic en "Pokémon Aleatorio" para descubrir un Pokémon al azar
+<li > Sin autenticación: No requiere API key
 
-## Estructura del proyecto
+<li >  Solo lectura: Solo métodos GET disponibles
 
-- `index.html` - Estructura principal de la aplicación
-- `styles/style.css` - Estilos y diseño responsive
-- `js/script.js` - Lógica para consumir la API y mostrar los datos
+<li > Sin límites estrictos: Pero se recomienda caché local
 
-## Tecnologías utilizadas
+<li > Formato JSON: Todas las respuestas en JSON
 
-- HTML5
-- CSS3 (con Flexbox para el diseño responsive)
-- JavaScript (ES6+ con async/await para las peticiones a la API)
-- PokeAPI (https://pokeapi.co/)
+## 🔧 Uso del Fetch API
 
-## Notas
+### Estructura básica:
 
-- La aplicación funciona completamente en el lado del cliente (frontend)
-- No se requiere instalación de dependencias adicionales
-- Compatible con navegadores modernos que soporten Fetch API
+```javascript
+async function fetchData() {
+  try {
+    const response = await fetch("https://pokeapi.co/api/v2/pokemon/1");
+    if (!response.ok) throw new Error("Error en la respuesta");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+```
+
+## 🎯 Características Implementadas
+
+<li > Tabla responsive con diseño moderno.
+
+<li > Paginación con botones "Cargar Más"
+
+<li > Búsqueda por cantidad de Pokémon a mostrar
+
+<li > Tipos de Pokémon con colores representativos
+
+<li > Estadísticas principales (HP, Ataque, Defensa)
+
+<li > Manejo de errores robusto
+
+<li > Interfaz responsive para móviles y desktop
+
+<li >Indicadores de carga durante las peticiones

@@ -1,4 +1,4 @@
-// Variables globales
+
 let currentOffset = 0;
 let currentLimit = 20;
 
@@ -11,7 +11,7 @@ const limitInput = document.getElementById('limit');
 const loadingElement = document.getElementById('loading');
 const errorElement = document.getElementById('error-message');
 
-// Colores para los tipos de Pokémon (coincide con CSS)
+// Colores para los tipos de Pokémon
 const typeColors = {
     normal: '#A8A878',
     fire: '#F08030',
@@ -124,12 +124,11 @@ function displayPokemon(pokemonList) {
     });
 }
 
-// Función para capitalizar la primera letra
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Funciones para manejar estados de la UI
+
 function showLoading() {
     loadingElement.style.display = 'block';
 }
@@ -155,7 +154,7 @@ limitInput.addEventListener('change', () => {
     currentLimit = parseInt(limitInput.value) || 20;
 });
 
-// Cargar Pokémon al iniciar la página
+
 document.addEventListener('DOMContentLoaded', () => {
     loadPokemon(false);
 });
