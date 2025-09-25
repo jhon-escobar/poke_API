@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokedex - Consumiendo la PokeAPI</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Pokedex</h1>
+        <div class="search-container">
+          <input
+            type="text"
+            id="pokemon-search"
+            placeholder="Buscar Pokémon por nombre o ID"
+          />
+          <button id="search-btn">Buscar</button>
+          <button id="random-btn">Pokémon Aleatorio</button>
+        </div>
+      </header>
+
+      <main>
+        <div class="pokemon-card" id="pokemon-card">
+          <div class="pokemon-image">
+            <img id="pokemon-img" src="" alt="Pokémon" />
+          </div>
+          <div class="pokemon-info">
+            <h2 id="pokemon-name">Nombre del Pokémon</h2>
+            <p id="pokemon-id">ID: #000</p>
+            <div class="types" id="pokemon-types">
+              <!-- Los tipos se insertarán aquí dinámicamente -->
+            </div>
+            <div class="stats">
+              <h3>Estadísticas</h3>
+              <div id="pokemon-stats">
+                <!-- Las estadísticas se insertarán aquí dinámicamente -->
+              </div>
+            </div>
+            <div class="abilities">
+              <h3>Habilidades</h3>
+              <div id="pokemon-abilities">
+                <!-- Las habilidades se insertarán aquí dinámicamente -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="error-message" id="error-message" style="display: none">
+          <p>¡Pokémon no encontrado! Intenta con otro nombre o ID.</p>
+        </div>
+      </main>
+
+      <footer>
+        <p>
+          Datos proporcionados por
+          <a href="https://pokeapi.co/" target="_blank">PokeAPI</a>
+        </p>
+      </footer>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
